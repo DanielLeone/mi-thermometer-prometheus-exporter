@@ -66,13 +66,13 @@ func main() {
 }
 
 var (
-	advtCount        = promauto.NewCounterVec(prometheus.CounterOpts{Namespace: "temp", Subsystem: "exporter", Name: "adv_count", Help: "Number of advertisements received"}, []string{"mac"})
-	advtTs           = promauto.NewGaugeVec(prometheus.GaugeOpts{Namespace: "temp", Subsystem: "exporter", Name: "ts", Help: "Unix timestamp of the latest advertisement"}, []string{"mac"})
-	tempC            = promauto.NewGaugeVec(prometheus.GaugeOpts{Namespace: "temp", Subsystem: "sensor", Name: "temp", Help: "Temperature in Degrees Celsius"}, []string{"mac"})
-	humidityP        = promauto.NewGaugeVec(prometheus.GaugeOpts{Namespace: "temp", Subsystem: "sensor", Name: "humidity", Help: "Relative Humidity Percentage"}, []string{"mac"})
-	battery          = promauto.NewGaugeVec(prometheus.GaugeOpts{Namespace: "temp", Subsystem: "sensor", Name: "battery", Help: "Battery Percentage"}, []string{"mac"})
-	batteryMV        = promauto.NewGaugeVec(prometheus.GaugeOpts{Namespace: "temp", Subsystem: "sensor", Name: "battery_mv", Help: "Battery Millivolts"}, []string{"mac"})
-	measurementCount = promauto.NewGaugeVec(prometheus.GaugeOpts{Namespace: "temp", Subsystem: "sensor", Name: "measurement_count", Help: "Measurement Count"}, []string{"mac"})
+	advCount         = promauto.NewCounterVec(prometheus.CounterOpts{Namespace: "mi", Subsystem: "adv", Name: "count", Help: "Number of advertisements received"}, []string{"mac"})
+	advTs            = promauto.NewGaugeVec(prometheus.GaugeOpts{Namespace: "mi", Subsystem: "adv", Name: "ts", Help: "Unix timestamp of the latest advertisement"}, []string{"mac"})
+	tempC            = promauto.NewGaugeVec(prometheus.GaugeOpts{Namespace: "mi", Subsystem: "sensor", Name: "temp", Help: "Temperature in Degrees Celsius"}, []string{"mac"})
+	humidityP        = promauto.NewGaugeVec(prometheus.GaugeOpts{Namespace: "mi", Subsystem: "sensor", Name: "humidity", Help: "Relative Humidity Percentage"}, []string{"mac"})
+	battery          = promauto.NewGaugeVec(prometheus.GaugeOpts{Namespace: "mi", Subsystem: "sensor", Name: "battery", Help: "Battery Percentage"}, []string{"mac"})
+	batteryMV        = promauto.NewGaugeVec(prometheus.GaugeOpts{Namespace: "mi", Subsystem: "sensor", Name: "battery_mv", Help: "Battery Millivolts"}, []string{"mac"})
+	measurementCount = promauto.NewGaugeVec(prometheus.GaugeOpts{Namespace: "mi", Subsystem: "sensor", Name: "measurement_count", Help: "Measurement Count"}, []string{"mac"})
 )
 
 func logAdvertisement(advertisement bluetooth.ScanResult) {
@@ -86,8 +86,8 @@ func logAdvertisement(advertisement bluetooth.ScanResult) {
 }
 
 func updatePrometheusMetrics(data *AdvertisementData) {
-	advtCount.WithLabelValues(data.MACAddress).Inc()
-	advtTs.WithLabelValues(data.MACAddress).Set(float64(time.Now().Unix()))
+	advCount.WithLabelValues(data.MACAddress).Inc()
+	advTs.WithLabelValues(data.MACAddress).Set(float64(time.Now().Unix()))
 	tempC.WithLabelValues(data.MACAddress).Set(data.Temperature)
 	humidityP.WithLabelValues(data.MACAddress).Set(data.Humidity)
 	batteryMV.WithLabelValues(data.MACAddress).Set(float64(data.VBat))
