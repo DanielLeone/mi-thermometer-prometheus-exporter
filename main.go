@@ -31,19 +31,21 @@ func setupBluetooth() error {
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 
 	// Start scanning for advertisements
-	err := adapter.Scan(func(adapter *bluetooth.Adapter, advertisement bluetooth.ScanResult) {
-		logAdvertisement(advertisement)
-	})
-
-	if err != nil {
-		return fmt.Errorf("failed to start scanning: %v", err)
-	}
+	go func() {
+		err := adapter.Scan(func(adapter *bluetooth.Adapter, advertisement bluetooth.ScanResult) {
+			logAdvertisement(advertisement)
+		})
+		if err != nil {
+			log.Println(fmt.Errorf("failed to start scanning: %v", err))
+		}
+		log.Println("Scanning stopped")
+	}()
 
 	// Wait for an interrupt signal to stop the program
 	<-stop
 
 	log.Println("Stopping scan...")
-	err = adapter.StopScan()
+	err := adapter.StopScan()
 	if err != nil {
 		return fmt.Errorf("error stopping scanning: %v", err)
 	}
@@ -59,6 +61,8 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		log.Printf("Stopping")
+		os.Exit(1)
 	}()
 
 	http.Handle("/metrics", promhttp.Handler())
