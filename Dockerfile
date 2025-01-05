@@ -6,7 +6,7 @@ RUN go mod download
 
 COPY main.go ./
 
-RUN GOOS=linux go build -o /mi-thermometer-prometheus-exporter
+RUN GOOS=linux go build -ldflags="-s -w" -o /mi-thermometer-prometheus-exporter
 
 EXPOSE 9000
 
