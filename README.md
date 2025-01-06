@@ -5,8 +5,3 @@ Prometheus exporter for the Xiaomi Temperature and Humidity Monitor running ATC 
 ```
 docker compose up --build
 ```
-
-# test go binary builds
-```
-goreleaser build --snapshot --clean
-```
