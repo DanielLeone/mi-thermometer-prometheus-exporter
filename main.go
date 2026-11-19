@@ -36,9 +36,13 @@ func setupBluetooth() error {
 			logAdvertisement(advertisement)
 		})
 		if err != nil {
-			log.Println(fmt.Errorf("failed to start scanning: %v", err))
+			log.Printf("scanning failed: %v", err)
 		}
-		log.Println("Scanning stopped")
+		// If the scan ends on its own (adapter reset, dbus hiccup) we'd keep
+		// serving stale metrics forever; exit so Docker restarts us cleanly.
+		log.Println("Scanning stopped unexpectedly; exiting so we get restarted")
+		time.Sleep(5 * time.Second)
+		os.Exit(1)
 	}()
 
 	// Wait for an interrupt signal to stop the program
@@ -82,9 +86,10 @@ var (
 func logAdvertisement(advertisement bluetooth.ScanResult) {
 	for _, element := range advertisement.ServiceData() {
 		if element.UUID.String() == "0000181a-0000-1000-8000-00805f9b34fb" {
-			data := parseAdvertisementData(element.Data)
-			log.Printf("Name: %s, MAC: %s, Bat: %d%%, Vbat: %d mV, Temp: %.1f°C, Humi: %0.1f%%, Count: %d, Flag: %d\n", advertisement.LocalName(), data.MACAddress, data.Battery, data.VBat, data.Temperature, data.Humidity, data.Count, *data.Flag)
-			updatePrometheusMetrics(data)
+			// Called for every advertisement, so don't log here.
+			if data := parseAdvertisementData(element.Data); data != nil {
+				updatePrometheusMetrics(data)
+			}
 		}
 	}
 }
